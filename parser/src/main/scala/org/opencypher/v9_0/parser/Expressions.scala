@@ -126,9 +126,50 @@ trait Expressions extends Parser
     | group(operator("-") ~~ Expression4) ~~>> (ast.UnarySubtract(_))
   )
 
+  ////<--blob semantic operator
+  private def AlgoNameWithThreshold: Rule1[ASTAlgoNameWithThreshold] = rule("an algorithm with threshold") {
+    group(SymbolicNameString ~ optional(operator("/") ~ DoubleLiteral)) ~~>>
+      ((a, b) => ASTAlgoNameWithThreshold(Some(a), b.map(_.value))) |
+      group(DoubleLiteral ~ optional(operator("/") ~ SymbolicNameString)) ~~>>
+        ((a, b) => ASTAlgoNameWithThreshold(b, Some(a.value)))
+  }
+
+  private def AlgoName: Rule1[ASTAlgoNameWithThreshold] = rule("an algorithm with threshold") {
+    group(SymbolicNameString) ~~>>
+      ((a) => ASTAlgoNameWithThreshold(Some(a), None))
+  }
+
+  ////blob semantic operator-->
+
   private def Expression3: Rule1[org.opencypher.v9_0.expressions.Expression] = rule("an expression") {
     Expression2 ~ zeroOrMore(WS ~ (
       group(operator("=~") ~~ Expression2) ~~>> (expressions.RegexMatch(_: org.opencypher.v9_0.expressions.Expression, _))
+      ////<--blob semantic operator
+      | group(operator("~:") ~ optional(AlgoNameWithThreshold) ~~ Expression2) ~~>>
+      ((a: expressions.Expression, b, c) =>
+        ASTSemanticLike(a, b, c))
+      | group(operator("!:") ~ optional(AlgoNameWithThreshold) ~~ Expression2) ~~>>
+      ((a: expressions.Expression, b, c) =>
+        ASTSemanticUnlike(a, b, c))
+      | group(operator(":::") ~ optional(AlgoName) ~~ Expression2) ~~>>
+      ((a: expressions.Expression, b, c) =>
+        ASTSemanticSetCompare(a, b, c))
+      | group(operator(">>:") ~ optional(AlgoNameWithThreshold) ~~ Expression2) ~~>>
+      ((a: expressions.Expression, b, c) =>
+        ASTSemanticContainSet(a, b, c))
+      | group(operator("<<:") ~ optional(AlgoNameWithThreshold) ~~ Expression2) ~~>>
+      ((a: expressions.Expression, b, c) =>
+        ASTSemanticSetIn(a, b, c))
+      | group(operator("::") ~ optional(AlgoName) ~~ Expression2) ~~>>
+      ((a: expressions.Expression, b, c) =>
+        ASTSemanticCompare(a, b, c))
+      | group(operator(">:") ~ optional(AlgoNameWithThreshold) ~~ Expression2) ~~>>
+      ((a: expressions.Expression, b, c) =>
+        ASTSemanticContain(a, b, c))
+      | group(operator("<:") ~ optional(AlgoNameWithThreshold) ~~ Expression2) ~~>>
+      ((a: expressions.Expression, b, c) =>
+        ASTSemanticIn(a, b, c))
+      ////blob semantic operator-->
       | group(keyword("IN") ~~ Expression2) ~~>> (expressions.In(_: org.opencypher.v9_0.expressions.Expression, _))
       | group(keyword("STARTS WITH") ~~ Expression2) ~~>> (expressions.StartsWith(_: org.opencypher.v9_0.expressions.Expression, _))
       | group(keyword("ENDS WITH") ~~ Expression2) ~~>> (expressions.EndsWith(_: org.opencypher.v9_0.expressions.Expression, _))
@@ -147,9 +188,39 @@ trait Expressions extends Parser
     ))
   }
 
+  ////<-- blob semantic operator
+  private def BlobURLPath: Rule1[String] = rule("<blob url path>")(
+    push(new java.lang.StringBuilder) ~ oneOrMore(
+      !(RightArrowHead) ~ ANY
+        ~:% withContext(appendToStringBuilder(_)(_))
+    )
+      ~~> (_.toString())
+  )
+
+  private def BlobLiteral: Rule1[ASTBlobLiteral] = rule("<blob>")(
+    LeftArrowHead ~ ignoreCase("FILE://") ~ BlobURLPath ~ RightArrowHead
+      ~~>> (x => ASTBlobLiteral(BlobFileURL(x)))
+      | LeftArrowHead ~ ignoreCase("BASE64://") ~ BlobURLPath ~ RightArrowHead
+      ~~>> (x => ASTBlobLiteral(BlobBase64URL(x.mkString(""))))
+      | LeftArrowHead ~ ignoreCase("INTERNAL://") ~ BlobURLPath ~ RightArrowHead
+      ~~>> (x => ASTBlobLiteral(InternalUrl(x.mkString(""))))
+      | LeftArrowHead ~ ignoreCase("HTTP://") ~ BlobURLPath ~ RightArrowHead
+      ~~>> (x => ASTBlobLiteral(BlobHttpURL(s"http://${x.mkString("")}")))
+      | LeftArrowHead ~ ignoreCase("HTTPS://") ~ BlobURLPath ~ RightArrowHead
+      ~~>> (x => ASTBlobLiteral(BlobHttpURL(s"https://${x.mkString("")}")))
+      | LeftArrowHead ~ ignoreCase("FTP://") ~ BlobURLPath ~ RightArrowHead
+      ~~>> (x => ASTBlobLiteral(BlobFtpURL(s"ftp://${x.mkString("")}")))
+      | LeftArrowHead ~ ignoreCase("SFTP://") ~ BlobURLPath ~ RightArrowHead
+      ~~>> (x => ASTBlobLiteral(BlobFtpURL(s"sftp://${x.mkString("")}")))
+  )
+  ////blob semantic operator-->
+
   private def Expression1: Rule1[org.opencypher.v9_0.expressions.Expression] = rule("an expression") (
       NumberLiteral
     | StringLiteral
+    ////<--blob semantic operator
+    | BlobLiteral
+    ////blob semantic operator-->
     | Parameter
     | keyword("TRUE") ~ push(ast.True()(_))
     | keyword("FALSE") ~ push(ast.False()(_))

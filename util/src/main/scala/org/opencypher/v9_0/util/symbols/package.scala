@@ -18,6 +18,9 @@ package org.opencypher.v9_0.util
 import scala.language.implicitConversions
 
 package object symbols {
+  //<--blob semantics
+  val CTBlob: BlobType = BlobType.instance
+  //blob semantics-->
   val CTAny: AnyType = AnyType.instance
   val CTBoolean: BooleanType = BooleanType.instance
   val CTString: StringType = StringType.instance

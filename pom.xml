@@ -190,7 +190,7 @@
             </execution>
           </executions>
         </plugin>
-
+<!--
         <plugin>
           <groupId>com.mycila</groupId>
           <artifactId>license-maven-plugin</artifactId>
@@ -199,7 +199,7 @@
             <strictCheck>true</strictCheck>
             <header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
             <properties>
-              <owner>Neo4j Sweden AB</owner> <!-- TODO  -->
+              <owner>Neo4j Sweden AB</owner>
               <email>http://neo4j.com</email>
             </properties>
             <includes>
@@ -225,7 +225,6 @@
           <executions>
             <execution>
               <id>check-licenses</id>
-              <!-- fail as early as possible -->
               <phase>initialize</phase>
               <goals>
                 <goal>check</goal>
@@ -234,7 +233,6 @@
           </executions>
         </plugin>
 
-      <!-- Licensing settings -->
       <plugin>
         <groupId>org.neo4j.build.plugins</groupId>
         <artifactId>licensing-maven-plugin</artifactId>
@@ -274,7 +272,7 @@
           </dependency>
         </dependencies>
       </plugin>
-
+-->
 
     </plugins>
   </build>
