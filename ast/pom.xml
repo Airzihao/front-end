@@ -14,18 +14,16 @@
 
   <description>Abstract Syntax Tree and semantic analysis for the Cypher query language</description>
 
-  <scm>
-    <connection>scm:git:git://github.com/openCypher/front-end.git</connection>
-    <developerConnection>scm:git:git@github.com:openCypher/front-end.git</developerConnection>
-    <url>https://github.com/openCypher/front-end</url>
-  </scm>
-
-  <licenses>
-    <license>
-      <name>Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-    </license>
-  </licenses>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>sdc</id>
+      <url>http://10.0.82.220:8081/repository/maven-snapshots/</url>
+    </snapshotRepository>
+    <repository>
+      <id>sdc</id>
+      <url>http://10.0.82.220:8081/repository/maven-releases</url>
+    </repository>
+  </distributionManagement>
 
   <build>
     <plugins>

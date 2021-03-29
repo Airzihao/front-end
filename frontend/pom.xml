@@ -27,22 +27,20 @@
 
   <url>http://components.neo4j.org/${project.artifactId}/${project.version}</url>
 
-  <scm>
-    <connection>scm:git:git://github.com/neo4j/neo4j.git</connection>
-    <developerConnection>scm:git:git@github.com:neo4j/neo4j.git</developerConnection>
-    <url>https://github.com/neo4j/neo4j</url>
-  </scm>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>sdc</id>
+      <url>http://10.0.82.220:8081/repository/maven-snapshots/</url>
+    </snapshotRepository>
+    <repository>
+      <id>sdc</id>
+      <url>http://10.0.82.220:8081/repository/maven-releases</url>
+    </repository>
+  </distributionManagement>
 
   <properties>
     <moduleName>org.neo4j.cypher.internal.frontend.v3_5</moduleName>
   </properties>
-
-  <licenses>
-    <license>
-      <name>Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-    </license>
-  </licenses>
 
   <dependencies>
 
