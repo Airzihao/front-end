@@ -182,7 +182,10 @@ trait Expressions extends Parser
   private def Expression2: Rule1[org.opencypher.v9_0.expressions.Expression] = rule("an expression") {
     Expression1 ~ zeroOrMore(WS ~ (
         PropertyLookup
-      | NodeLabels ~~>> (ast.HasLabels(_: org.opencypher.v9_0.expressions.Expression, _))
+          ////<-- blob semantic operator
+          | operator("->") ~~ (PropertyKeyName ~~>> (ASTCustomProperty(_: ast.Expression, _)))
+          ////blob semantic operator-->
+          | NodeLabels ~~>> (ast.HasLabels(_: org.opencypher.v9_0.expressions.Expression, _))
       |  "[" ~~ Expression ~~ "]" ~~>> (ast.ContainerIndex(_: org.opencypher.v9_0.expressions.Expression, _))
       | "[" ~~ optional(Expression) ~~ ".." ~~ optional(Expression) ~~ "]" ~~>> (ast.ListSlice(_: org.opencypher.v9_0.expressions.Expression, _, _))
     ))
@@ -203,7 +206,7 @@ trait Expressions extends Parser
       | LeftArrowHead ~ ignoreCase("BASE64://") ~ BlobURLPath ~ RightArrowHead
       ~~>> (x => ASTBlobLiteral(BlobBase64URL(x.mkString(""))))
       | LeftArrowHead ~ ignoreCase("INTERNAL://") ~ BlobURLPath ~ RightArrowHead
-      ~~>> (x => ASTBlobLiteral(InternalUrl(x.mkString(""))))
+      ~~>> (x => ASTBlobLiteral(BlobInternalURL(x.mkString(""))))
       | LeftArrowHead ~ ignoreCase("HTTP://") ~ BlobURLPath ~ RightArrowHead
       ~~>> (x => ASTBlobLiteral(BlobHttpURL(s"http://${x.mkString("")}")))
       | LeftArrowHead ~ ignoreCase("HTTPS://") ~ BlobURLPath ~ RightArrowHead

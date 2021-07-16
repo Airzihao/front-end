@@ -22,7 +22,7 @@ case class BlobBase64URL(base64: String) extends BlobURL {
   override def asCanonicalString = base64
 }
 
-case class InternalUrl(blobId: String) extends BlobURL {
+case class BlobInternalURL(blobId: String) extends BlobURL {
   override def asCanonicalString = blobId
 }
 
