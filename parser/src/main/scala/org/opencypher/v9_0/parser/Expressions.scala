@@ -185,11 +185,30 @@ trait Expressions extends Parser
           ////<-- blob semantic operator
           | operator("->") ~~ (PropertyKeyName ~~>> (ASTCustomProperty(_: ast.Expression, _)))
           ////blob semantic operator-->
+
+          ////<-- version operator
+          | "@" ~~ (VersionNumberLiteral ~~>> ((a: ast.Expression, b) =>
+            ASTCustomPropertyWithVersionNum(a, PlainVersionNumber(b.asCanonicalStringVal))))
+          //// version operator -->
+
           | NodeLabels ~~>> (ast.HasLabels(_: org.opencypher.v9_0.expressions.Expression, _))
       |  "[" ~~ Expression ~~ "]" ~~>> (ast.ContainerIndex(_: org.opencypher.v9_0.expressions.Expression, _))
       | "[" ~~ optional(Expression) ~~ ".." ~~ optional(Expression) ~~ "]" ~~>> (ast.ListSlice(_: org.opencypher.v9_0.expressions.Expression, _, _))
     ))
   }
+
+  private def VersionNumberString: Rule1[String] = rule("<version number in string>")(
+    push(new java.lang.StringBuilder) ~ oneOrMore(
+      !(RightArrowHead) ~ ANY
+        ~:% withContext(appendToStringBuilder(_)(_))
+    )
+      ~~> (_.toString())
+  )
+
+  private def VersionNumberLiteral: Rule1[ASTVersionNumberLiteral] = rule("<version>")(
+    LeftArrowHead ~ VersionNumberString ~ RightArrowHead
+    ~~>> (x => ASTVersionNumberLiteral(PlainVersionNumber(x)))
+  )
 
   ////<-- blob semantic operator
   private def BlobURLPath: Rule1[String] = rule("<blob url path>")(
@@ -224,6 +243,9 @@ trait Expressions extends Parser
     ////<--blob semantic operator
     | BlobLiteral
     ////blob semantic operator-->
+    ////<!- version number operator
+    | VersionNumberLiteral
+    ////<version number operator -!>
     | Parameter
     | keyword("TRUE") ~ push(ast.True()(_))
     | keyword("FALSE") ~ push(ast.False()(_))

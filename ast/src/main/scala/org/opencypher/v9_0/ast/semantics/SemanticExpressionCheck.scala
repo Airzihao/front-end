@@ -130,6 +130,12 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
           expectType(CTAny.covariant, x.map) chain //NOTE: enable property of blob property
           specifyType(CTAny.covariant, x)
 
+      // ToDO : Enable the semantic expression check of version number.
+      case x: ASTCustomPropertyWithVersionNum =>
+        check(ctx, x.map) chain
+          expectType(CTAny.covariant, x.map) chain
+          specifyType(CTAny.covariant, x)
+
       case x: ASTSemanticUnlike =>
         check(ctx, x.arguments) chain
           checkTypes(x, x.signatures)

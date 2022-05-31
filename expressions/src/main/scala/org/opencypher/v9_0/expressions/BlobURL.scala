@@ -38,8 +38,13 @@ case class ASTAlgoNameWithThreshold(algorithm: Option[String], threshold: Option
   extends Expression {
 }
 
+// This propertykey is the sub-propertykey.
 case class ASTCustomProperty(map: Expression, propertyKey: PropertyKeyName)(val position: InputPosition) extends LogicalProperty {
   override def asCanonicalStringVal = s"${map.asCanonicalStringVal}.${propertyKey.asCanonicalStringVal}"
+}
+
+case class ASTCustomPropertyWithVersionNum(map: Expression, verNum: VerNum)(val position: InputPosition) extends LogicalProperty {
+  override def propertyKey: PropertyKeyName = PropertyKeyName("Specified Version")(position)
 }
 
 case class ASTSemanticLike(lhs: Expression, ant: Option[ASTAlgoNameWithThreshold], rhs: Expression)(val position: InputPosition)

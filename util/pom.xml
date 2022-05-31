@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.opencypher</groupId>
     <artifactId>front-end-parent-9.0</artifactId>
-    <version>9.0-BLOB-SNAPSHOT</version>
+    <version>9.0-BLOB-SNAPSHOT-20220529</version>
     <relativePath>../</relativePath>
   </parent>
 
